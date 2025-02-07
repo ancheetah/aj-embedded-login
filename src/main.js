@@ -51,6 +51,11 @@ function handleSecondStep(step) {
 }
 
 async function submitHandler() {
+    const successElem = document.getElementById('success');
+    const errorElem = document.getElementById('error');
+    successElem.style.display = 'none';
+    errorElem.style.display = 'none';
+    
     try {
         const firstStep = await FRAuth.start();
         console.log('firstStep', firstStep);
@@ -66,10 +71,11 @@ async function submitHandler() {
             throw new Error('Failed to get second step');
         }
         handleSecondStep(secondStep);
-        document.body.appendChild(successMessage());
+
+        successElem.style.display = 'block';
     } catch (err) {
         console.error('Failed to submit: ', err);
-        document.body.appendChild(errorMessage());
+        errorElem.style.display = 'block';
     }
 }
 
