@@ -13,18 +13,6 @@ Config.set({
     // tree: process.env.TREE, // e.g. 'sdkAuthenticationTree' or 'Login'
 });
 
-function successMessage() {
-    const el = document.createElement('div');
-    el.innerHTML = 'Successfully logged in!';
-    return el;
-}
-
-function errorMessage() {
-    const el = document.createElement('div');
-    el.innerHTML = 'Failed to login';
-    return el;
-}
-
 function handleFirstStep(step) {
     const formElem = document.getElementById('login-form');
     const nameCallback = step.getCallbackOfType('NameCallback');
@@ -55,7 +43,7 @@ async function submitHandler() {
     const errorElem = document.getElementById('error');
     successElem.style.display = 'none';
     errorElem.style.display = 'none';
-    
+
     try {
         const firstStep = await FRAuth.start();
         console.log('firstStep', firstStep);
