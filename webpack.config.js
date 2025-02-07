@@ -5,10 +5,22 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const config = {
-  entry: [path.resolve(__dirname, './src/main.js')],
+  entry: {
+    main: [path.resolve(__dirname, './src/main.js')],
+    styles: [path.resolve(__dirname, './src/styles.css')],
+  },
   output: {
     path: path.resolve(__dirname, './dist'),
-    filename: 'main.js',
+    filename: '[name].js',
+    publicPath: '/',
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      },
+    ],
   },
   devServer: {
     port: 3000,

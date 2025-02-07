@@ -1,4 +1,5 @@
 import { Config, FRAuth } from '@forgerock/javascript-sdk';
+import './styles.css';
 
 Config.set({
     clientId: 'aj-public-sdk-client', // e.g. 'ForgeRockSDKClient'
