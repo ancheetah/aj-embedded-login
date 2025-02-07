@@ -1,4 +1,4 @@
-import { Config } from '@forgerock/javascript-sdk';
+import { Config, FRAuth } from '@forgerock/javascript-sdk';
 
 Config.set({
     clientId: 'aj-public-sdk-client', // e.g. 'ForgeRockSDKClient'
@@ -18,8 +18,33 @@ function successMessage() {
     return el;
 }
 
-function submitHandler() {
-    document.body.appendChild(successMessage());
+function handleFirstStep(step) {
+    const formElem = document.getElementById('login-form');
+    const nameCallback = step.getCallbackOfType('NameCallback');
+    const passwordCallback = step.getCallbackOfType('PasswordCallback');
+    nameCallback.setName(formElem.querySelector('input[name="username"]').value);
+    passwordCallback.setPassword(formElem.querySelector('input[name="password"]').value);
+    console.log('nameCallback', nameCallback);
+    console.log('passwordCallback', passwordCallback);
+}
+
+async function submitHandler() {
+    try {
+        const firstStep = await FRAuth.start();
+        console.log('firstStep', firstStep);
+        if (!firstStep) {
+            throw new Error('Failed to get first step');
+        }
+        
+        handleFirstStep(firstStep);
+
+        // const nextStep = await FRAuth.next(firstStep);
+        // console.log('nextStep', nextStep);
+    } catch (err) {
+        console.error('Failed to submit: ', err);
+    } finally {
+        document.body.appendChild(successMessage());
+    }
 }
 
 document.getElementById('login-form').addEventListener('submit', submitHandler);
