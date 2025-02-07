@@ -6,12 +6,12 @@
     <title>AJ Embedded Login</title>
 </head>
 <body>
-    <form>
+    <form id="login-form" method="post" onsubmit="return false;">
         <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
+        <input type="text" id="username" name="username" required />
         <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        <input type="button" value="Login">
+        <input type="password" id="password" name="password" required />
+        <button type="submit">Login</button>
     </form>
     <script src="main.js"></script>
 </body>

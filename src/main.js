@@ -12,10 +12,14 @@ Config.set({
     // tree: process.env.TREE, // e.g. 'sdkAuthenticationTree' or 'Login'
 });
 
-function component() {
+function successMessage() {
     const el = document.createElement('div');
-    el.innerHTML = 'Hello World';
+    el.innerHTML = 'Submitted!';
     return el;
 }
 
-document.body.appendChild(component());
+function submitHandler() {
+    document.body.appendChild(successMessage());
+}
+
+document.getElementById('login-form').addEventListener('submit', submitHandler);
