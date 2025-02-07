@@ -14,7 +14,13 @@ Config.set({
 
 function successMessage() {
     const el = document.createElement('div');
-    el.innerHTML = 'Submitted!';
+    el.innerHTML = 'Successfully logged in!';
+    return el;
+}
+
+function errorMessage() {
+    const el = document.createElement('div');
+    el.innerHTML = 'Failed to login';
     return el;
 }
 
@@ -28,6 +34,21 @@ function handleFirstStep(step) {
     console.log('passwordCallback', passwordCallback);
 }
 
+function handleSecondStep(step) {
+    switch (step.type) {
+    case 'LoginSuccess':
+        const sessionToken = step.getSessionToken();
+        console.log('sessionToken', sessionToken);
+        break;
+    case 'LoginFailure':
+        const reason = step.getReason();
+        throw new Error(`Login failed: ${reason}`);
+    default:
+        console.log('Unknown step: ', step);
+    }
+    return;
+}
+
 async function submitHandler() {
     try {
         const firstStep = await FRAuth.start();
@@ -38,12 +59,16 @@ async function submitHandler() {
         
         handleFirstStep(firstStep);
 
-        // const nextStep = await FRAuth.next(firstStep);
-        // console.log('nextStep', nextStep);
+        const secondStep = await FRAuth.next(firstStep);
+        console.log('secondStep', secondStep);
+        if (!secondStep) {
+            throw new Error('Failed to get second step');
+        }
+        handleSecondStep(secondStep);
+        document.body.appendChild(successMessage());
     } catch (err) {
         console.error('Failed to submit: ', err);
-    } finally {
-        document.body.appendChild(successMessage());
+        document.body.appendChild(errorMessage());
     }
 }
 
