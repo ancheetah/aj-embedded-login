@@ -1,4 +1,4 @@
-import { Config, FRAuth, TokenManager } from '@forgerock/javascript-sdk';
+import { Config, FRAuth, TokenManager, UserManager } from '@forgerock/javascript-sdk';
 import './styles.css';
 
 Config.set({
@@ -54,8 +54,10 @@ async function handleSecondStep(step) {
 async function submitHandler() {
     const successElem = document.getElementById('success');
     const errorElem = document.getElementById('error');
+    const userElem = document.getElementById('user');
     successElem.style.display = 'none';
     errorElem.style.display = 'none';
+    userElem.style.display = 'none';
 
     try {
         const firstStep = await FRAuth.start();
@@ -77,6 +79,13 @@ async function submitHandler() {
             throw new Error('Failed to get access token');
         }
 
+        const user = await UserManager.getCurrentUser();
+        console.log('user', user);
+        if (!user) {
+            throw new Error('Failed to get user');
+        }
+        userElem.innerHTML = JSON.stringify(user, null, 2);
+        userElem.style.display = 'block';
         successElem.style.display = 'block';
     } catch (err) {
         console.error('Failed to submit: ', err);
