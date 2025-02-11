@@ -1,4 +1,4 @@
-import { Config, FRAuth, TokenManager, UserManager } from '@forgerock/javascript-sdk';
+import { Config, FRAuth, FRUser, TokenManager, UserManager } from '@forgerock/javascript-sdk';
 import './styles.css';
 
 Config.set({
@@ -52,12 +52,13 @@ async function handleSecondStep(step) {
 }
 
 async function submitHandler() {
+    const formElem = document.getElementById('login-form');
     const successElem = document.getElementById('success');
     const errorElem = document.getElementById('error');
-    const userElem = document.getElementById('user');
+    const userPanel = document.getElementById('user');
+    const userInfoElem = document.querySelector('#user pre');
     successElem.style.display = 'none';
     errorElem.style.display = 'none';
-    userElem.style.display = 'none';
 
     try {
         const firstStep = await FRAuth.start();
@@ -79,14 +80,15 @@ async function submitHandler() {
             throw new Error('Failed to get access token');
         }
 
+        // Display user info
         const user = await UserManager.getCurrentUser();
-        console.log('user', user);
         if (!user) {
             throw new Error('Failed to get user');
         }
-        userElem.innerHTML = JSON.stringify(user, null, 2);
-        userElem.style.display = 'block';
+        userInfoElem.innerHTML = JSON.stringify(user, null, 2);
+        userPanel.style.display = 'block';
         successElem.style.display = 'block';
+        formElem.style.display = 'none';
     } catch (err) {
         console.error('Failed to submit: ', err);
         errorElem.style.display = 'block';
@@ -94,3 +96,12 @@ async function submitHandler() {
 }
 
 document.getElementById('login-form').addEventListener('submit', submitHandler);
+document.getElementById('logout').addEventListener('click', async () => {
+    try{
+        await FRUser.logout();
+        location.reload(true);
+    } catch (err) {
+        throw new Error(`Failed to logout: ${err}`);
+    }
+}
+);
