@@ -30,6 +30,67 @@ async function nextSteps(step) {
     return;
 }
 
+function getStage(step) {
+    let stage;
+    const nameCallbacks = step.getCallbacksOfType('NameCallback');
+    const passwordCallbacks = step.getCallbacksOfType('PasswordCallback');
+    const choiceCallbacks = step.getCallbacksOfType('ChoiceCallback');
+    
+    if (nameCallbacks.length && passwordCallbacks.length) {
+        stage = 'UsernamePassword';
+    } else if (choiceCallbacks.length) {
+        stage = 'Choice';
+    } else {
+        stage = undefined;
+    }
+    
+    console.log('stage', stage);
+    return stage;
+}
+
+function renderChoices(step) {
+    const choiceCallback = step.getCallbackOfType('ChoiceCallback');
+    // console.log('choiceCallback', choiceCallback);
+    const prompt = choiceCallback.getPrompt();
+    const choices = choiceCallback.getChoices();
+    const defaultChoice = choiceCallback.getDefaultChoice();
+    // console.log('choice', prompt, choices);
+
+    if (!prompt || !choices.length) {
+        throw new Error('No prompt or choices found');
+    }
+
+    const promptElem = document.createElement('p');
+    promptElem.innerHTML = prompt;
+    continueElem.appendChild(promptElem);
+
+    choices.forEach(choice => {
+        const radio = document.createElement('div');
+        const input = document.createElement('input');
+        input.setAttribute('type', 'radio');
+        input.setAttribute('id', choice);
+        input.setAttribute('name', 'choice');
+        input.setAttribute('value', choice);
+        input.setAttribute('checked', defaultChoice === choice);
+        radio.appendChild(input);
+
+        const label = document.createElement('label');
+        label.setAttribute('for', choice);
+        label.innerHTML = choice;
+        radio.appendChild(label);
+
+        continueElem.appendChild(radio);
+        continueElem.addEventListener('submit', () => submitChoiceHandler(step));
+    });
+
+    const submitChoiceButton = document.createElement('button');
+    submitChoiceButton.setAttribute('type', 'submit');
+    submitChoiceButton.innerHTML = 'Submit';
+    continueElem.appendChild(submitChoiceButton);
+
+    continueElem.style.display = 'block';
+}
+
 function handleFirstStep(step) {
     const loginElem = document.getElementById('login-form');
     const nameCallback = step.getCallbackOfType('NameCallback');
@@ -72,19 +133,7 @@ async function handleNextStep(step) {
         loginElem.style.display = 'none';
         break;
     case 'Step':
-        let stage;
-        const nameCallbacks = step.getCallbacksOfType('NameCallback');
-        const passwordCallbacks = step.getCallbacksOfType('PasswordCallback');
-        const choiceCallbacks = step.getCallbacksOfType('ChoiceCallback');
-        
-        if (nameCallbacks.length && passwordCallbacks.length) {
-            stage = 'UsernamePassword';
-        } else if (choiceCallbacks.length) {
-            stage = 'Choice';
-        } else {
-            stage = undefined;
-        }
-        console.log('stage', stage);
+        const stage = getStage(step);
 
         switch (stage) {
             case 'UsernamePassword':
@@ -92,48 +141,7 @@ async function handleNextStep(step) {
                 break;
             case 'Choice':
                 loginElem.style.display = 'none';
-
-                const choiceCallback = choiceCallbacks[0];
-                // console.log('choiceCallback', choiceCallback);
-                const prompt = choiceCallback.getPrompt();
-                const choices = choiceCallback.getChoices();
-                const defaultChoice = choiceCallback.getDefaultChoice();
-                // console.log('choice', prompt, choices);
-
-                if (!prompt || !choices.length) {
-                    throw new Error('No prompt or choices found');
-                }
-
-                const promptElem = document.createElement('p');
-                promptElem.innerHTML = prompt;
-                continueElem.appendChild(promptElem);
-
-                choices.forEach(choice => {
-                    const radio = document.createElement('div');
-                    const input = document.createElement('input');
-                    input.setAttribute('type', 'radio');
-                    input.setAttribute('id', choice);
-                    input.setAttribute('name', 'choice');
-                    input.setAttribute('value', choice);
-                    input.setAttribute('checked', defaultChoice === choice);
-                    radio.appendChild(input);
-
-                    const label = document.createElement('label');
-                    label.setAttribute('for', choice);
-                    label.innerHTML = choice;
-                    radio.appendChild(label);
-
-                    continueElem.appendChild(radio);
-                });
-
-                const submitChoiceButton = document.createElement('button');
-                submitChoiceButton.setAttribute('type', 'submit');
-                submitChoiceButton.innerHTML = 'Submit';
-                continueElem.appendChild(submitChoiceButton);
-
-                continueElem.style.display = 'block';
-
-                continueElem.addEventListener('submit', () => submitChoiceHandler(step));
+                renderChoices(step);
                 break;
             default:
                 throw new Error('Unknown stage');
@@ -150,7 +158,7 @@ async function handleNextStep(step) {
     }
 }
 
-async function submitHandler() {
+async function submitLoginHandler() {
     successElem.style.display = 'none';
     errorElem.style.display = 'none';
 
@@ -190,7 +198,7 @@ function submitChoiceHandler(step) {
     nextSteps(step);
 }
 
-loginElem.addEventListener('submit', submitHandler);
+loginElem.addEventListener('submit', submitLoginHandler);
 document.getElementById('logout').addEventListener('click', async () => {
     continueElem.style.display = 'none';
     userInfoElem.style.display = 'none';
