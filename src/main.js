@@ -80,7 +80,7 @@ function renderChoices(step) {
         radio.appendChild(label);
 
         continueElem.appendChild(radio);
-        continueElem.addEventListener('submit', () => submitChoiceHandler(step));
+        continueElem.addEventListener('submit', (event) => submitChoiceHandler(event, step));
     });
 
     const submitChoiceButton = document.createElement('button');
@@ -158,7 +158,8 @@ async function handleNextStep(step) {
     }
 }
 
-async function submitLoginHandler() {
+async function submitLoginHandler(event) {
+    event.preventDefault();
     successElem.style.display = 'none';
     errorElem.style.display = 'none';
 
@@ -184,7 +185,8 @@ async function submitLoginHandler() {
     }
 }
 
-function submitChoiceHandler(step) {
+function submitChoiceHandler(event, step) {
+    event.preventDefault();
     const choiceCallback = step.getCallbackOfType('ChoiceCallback');
     const choices = document.querySelectorAll('input[name="choice"]');
     let selectedChoice;
